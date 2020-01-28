@@ -11,12 +11,12 @@
         var config = {
             type: Phaser.AUTO,
             width: 800,
-            height: 600,
+            height: 800,
             physics: {
                 default: 'arcade',
                 arcade: {
                     gravity: {
-                        y: 300
+                        y: 0
                     },
                     debug: false
                 }
@@ -50,23 +50,25 @@
 
 
         var platforms;
+        var star;
 
 
         function create() {
             cursors = this.input.keyboard.createCursorKeys();
-            this.add.image(400, 300, 'sky');
+            this.add.image(400, 400, 'sky');
 
             platforms = this.physics.add.staticGroup();
+            star = this.physics.add.staticGroup();
 
-            platforms.create(400, 568, 'ground').setScale(2).refreshBody();
+            platforms.create(400, 800, 'ground').setScale(2).refreshBody();
 
-            platforms.create(600, 400, 'ground');
+            platforms.create(800, 400, 'ground');
             platforms.create(50, 250, 'ground');
             platforms.create(750, 220, 'ground');
 
-            player = this.physics.add.sprite(100, 450, 'dude');
+            player = this.physics.add.sprite(400, 400, 'dude');
 
-            player.setBounce(0.2);
+            player.setBounce(0);
             player.setCollideWorldBounds(true);
 
             this.anims.create({
@@ -99,20 +101,56 @@
             });
         }
 
+        var holi;
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function demo() {
+
+            await sleep(2000);
+
+            let i = 0;
+            // Sleep in loop
+            do {
+                console.log(i);
+                if (i % 3 == 0)
+                    await sleep(2000);
+                holi = true;
+
+                i++;
+            } while (i != 100)
+        }
 
 
 
 
+        demo();
 
         function update() {
+
+            if (holi) {
+                this.add.image(Math.floor(Math.random() * 800), Math.floor(Math.random() * 600), 'star');
+                holi = false;
+            }
+
+
+
             this.physics.add.collider(player, platforms);
-            //this.add.image(Math.floor(Math.random() * 800), Math.floor(Math.random() * 600), 'star');
+
+            this.physics.add.collider(star, player);
+
+
+
             if (cursors.left.isDown) {
-                player.setVelocityX(-160);
+                player.setVelocityX(-60);
+
 
                 player.anims.play('left', true);
             } else if (cursors.right.isDown) {
-                player.setVelocityX(160);
+                player.setVelocityX(60);
+
 
                 player.anims.play('right', true);
             } else {
@@ -121,9 +159,17 @@
                 player.anims.play('turn');
             }
 
-            if (cursors.up.isDown && player.body.touching.down) {
-                player.setVelocityY(-330);
+            if (cursors.up.isDown) {
+
+                player.setVelocityY(-60);
+
+            } else if (cursors.down.isDown) {
+                player.setVelocityY(60);
+            } else {
+
+                player.setVelocityY(0);
             }
+
         }
     </script>
 
